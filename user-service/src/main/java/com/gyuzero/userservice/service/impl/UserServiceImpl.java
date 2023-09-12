@@ -7,6 +7,7 @@ import com.gyuzero.userservice.repository.UserRepository;
 import com.gyuzero.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,5 +40,19 @@ public class UserServiceImpl implements UserService {
         User result = modelMapper.map(userEntity, User.class);
 
         return result;
+    }
+
+    @Override
+    public User findByUserId(String userId) {
+
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException("user not found");
+        }
+
+        User user = modelMapper.map(userEntity, User.class);
+
+        return user;
     }
 }

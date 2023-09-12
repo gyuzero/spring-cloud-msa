@@ -11,4 +11,6 @@ public interface UserService {
     List<UserEntity> findAll();
 
     User createUser(User createUser);
+
+    User findByUserId(String userId);
 }
