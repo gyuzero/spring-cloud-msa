@@ -1,16 +1,18 @@
 package com.gyuzero.userservice.service.impl;
 
-import com.gyuzero.userservice.dto.CreateUser;
-import com.gyuzero.userservice.dto.User;
+import com.gyuzero.userservice.dto.UserDto;
 import com.gyuzero.userservice.entity.UserEntity;
 import com.gyuzero.userservice.repository.UserRepository;
 import com.gyuzero.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,21 +31,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public UserDto createUser(UserDto userDto) {
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
+        UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
 
         userRepository.save(userEntity);
 
-        User result = modelMapper.map(userEntity, User.class);
+        UserDto result = modelMapper.map(userEntity, UserDto.class);
 
         return result;
     }
 
     @Override
-    public User findByUserId(String userId) {
+    public UserDto findByUserId(String userId) {
 
         UserEntity userEntity = userRepository.findByUserId(userId);
 
@@ -51,8 +53,26 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("user not found");
         }
 
-        User user = modelMapper.map(userEntity, User.class);
+        UserDto userDto = modelMapper.map(userEntity, UserDto.class);
 
-        return user;
+        return userDto;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        UserEntity userEntity = userRepository.findByUserId(username);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(username);
+        }
+
+        return new User(userEntity.getUserId(),
+                userEntity.getPassword(),
+                true,
+                true,
+                true,
+                true,
+                new ArrayList<>());
     }
 }

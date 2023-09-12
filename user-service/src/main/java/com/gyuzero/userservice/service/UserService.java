@@ -1,16 +1,16 @@
 package com.gyuzero.userservice.service;
 
-import com.gyuzero.userservice.dto.CreateUser;
-import com.gyuzero.userservice.dto.User;
+import com.gyuzero.userservice.dto.UserDto;
 import com.gyuzero.userservice.entity.UserEntity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
 
     List<UserEntity> findAll();
 
-    User createUser(User createUser);
+    UserDto createUser(UserDto userDto);
 
-    User findByUserId(String userId);
+    UserDto findByUserId(String userId);
 }

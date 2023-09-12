@@ -2,7 +2,7 @@ package com.gyuzero.userservice.controller;
 
 import com.gyuzero.userservice.dto.CreateUser;
 import com.gyuzero.userservice.dto.ResponseUser;
-import com.gyuzero.userservice.dto.User;
+import com.gyuzero.userservice.dto.UserDto;
 import com.gyuzero.userservice.entity.UserEntity;
 import com.gyuzero.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,9 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<ResponseUser> createUser(@RequestBody CreateUser createUser) {
 
-        User user = modelMapper.map(createUser, User.class);
+        UserDto user = modelMapper.map(createUser, UserDto.class);
 
-        User result = userService.createUser(user);
+        UserDto result = userService.createUser(user);
 
         ResponseUser responseUser = modelMapper.map(result, ResponseUser.class);
 
@@ -50,9 +50,9 @@ public class UserController {
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<ResponseUser> getUser(@PathVariable("userId") String userId) {
-        User user = userService.findByUserId(userId);
+        UserDto userDto = userService.findByUserId(userId);
 
-        ResponseUser responseUser = modelMapper.map(user, ResponseUser.class);
+        ResponseUser responseUser = modelMapper.map(userDto, ResponseUser.class);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseUser);
     }
