@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gyuzero.userservice.dto.RequestLogin;
 import com.gyuzero.userservice.dto.UserDto;
 import com.gyuzero.userservice.service.UserService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -20,25 +16,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final UserService userService;
 
-    @Value("${token.secret}")
-    private String secret;
-
-    @Value("${token.expiration}")
-    private String expiration;
-
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
+    private final JwtService jwtService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
@@ -68,11 +55,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         UserDto userDto = userService.findByUserId(username);
 
-        String jwt = Jwts.builder()
-                .setSubject(userDto.getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expiration)))
-                .signWith(getSignInKey())
-                .compact();
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", userDto.getUserId());
+        extraClaims.put("email", userDto.getEmail());
+        extraClaims.put("name", userDto.getName());
+
+        String jwt = jwtService.generateToken(extraClaims, username);
 
         response.addHeader("jwt", jwt);
 

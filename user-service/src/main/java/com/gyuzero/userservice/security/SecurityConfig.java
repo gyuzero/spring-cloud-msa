@@ -17,6 +17,8 @@ public class SecurityConfig {
 
     private final UserService userService;
 
+    private final JwtService jwtService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -37,7 +39,7 @@ public class SecurityConfig {
 
     @Bean
     public CustomAuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
-        CustomAuthenticationFilter authenticationFilter = new CustomAuthenticationFilter(userService);
+        CustomAuthenticationFilter authenticationFilter = new CustomAuthenticationFilter(userService, jwtService);
         authenticationFilter.setAuthenticationManager(authenticationManager);
         return authenticationFilter;
     }
